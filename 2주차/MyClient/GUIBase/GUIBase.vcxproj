@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\nana\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\..\..\Common;$(SolutionDir)\nana\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\nana\build\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -150,6 +150,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TcpNetwork.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TcpNetwork.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
