@@ -1,0 +1,24 @@
+Thanks for you guys who contributed, by reporting bugs, submitting patchs and sending donations.
+
+Ariel Vina-Rodriguez(qPCR4vir)
+Katsuhisa Yuasa(beru)
+Krivonosov Mikhail (mike_live)
+Julia Jakob
+Stanislav Zlatopolsky
+
+kmribti
+leobackes
+Pr0cur0
+redagito
+Benjamin Navarro(contributed Mac OS experiment)
+Robert Hauck(improved cmake configuration)
+BigDave
+Andrew Kornilov
+Ryan Gonzalez
+Tom
+Ptolomey
+Simon Berger
+Sergey Bromirskiy
+Hiroshi Seki
+Geert Fannes
+Gabor Janak
