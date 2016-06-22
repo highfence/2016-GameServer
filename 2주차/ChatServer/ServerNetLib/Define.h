@@ -28,6 +28,7 @@ namespace NServerNetLib
 	//const int MAX_CLIENT_RECV_BUFFER_SIZE = MAX_PACKET_SIZE * 8; // 클라이언트 받기용 최대 버퍼 크기
 	//const int MAX_CLIENT_SEND_BUFFER_SIZE = MAX_PACKET_SIZE * 8; // 4k. 클라이언트 보내기용 최대 버퍼 크기
 
+	// 클라이언트 세션
 	struct ClientSession
 	{
 		bool IsConnected() { return SocketFD > 0 ? true : false; }

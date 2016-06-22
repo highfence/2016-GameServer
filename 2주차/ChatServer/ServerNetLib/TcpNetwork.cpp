@@ -26,22 +26,26 @@ namespace NServerNetLib
 
 	NET_ERROR_CODE TcpNetwork::Init(const ServerConfig* pConfig, ILog* pLogger)
 	{
+		// 서버 셋팅 불러오기
 		memcpy(&m_Config, pConfig, sizeof(ServerConfig));
 
+		// 로거 셋팅
 		m_pRefLogger = pLogger;
 
+		// 서버소켓 생성 후 초기화
 		auto initRet = InitServerSocket();
 		if (initRet != NET_ERROR_CODE::NONE)
 		{
 			return initRet;
 		}
 		
+		// bind하고 listen한다.
 		auto bindListenRet = BindListen(pConfig->Port, pConfig->BackLogCount);
 		if (bindListenRet != NET_ERROR_CODE::NONE)
 		{
 			return bindListenRet;
 		}
-
+		
 		FD_ZERO(&m_Readfds);
 		FD_SET(m_ServerSockfd, &m_Readfds);
 		
@@ -62,31 +66,38 @@ namespace NServerNetLib
 				
 		return packetInfo;
 	}
-		
+	
+	// 메인 루프
 	void TcpNetwork::Run()
 	{
+		/*
+			readFD는 수신할 데이터가 있는지 알아보고 싶은 소켓들
+			writeFD는 블로킹되지 않고 바로 데이터를 보낼 수 있는지 알아보고 싶은 소켓들
+			exceptionFD는 예외가 발생했는지 알아보고 싶은 소켓들
+		*/
 		auto read_set = m_Readfds;
 		auto write_set = m_Readfds;
 		auto exc_set = m_Readfds;
 
+		// 함수 호출 후 무한 대기상태에 빠지지 않도록 timeout을 설정해둔다
 		timeval timeout{ 0, 1000 }; //tv_sec, tv_usec
+
+		// 읽을게 있나, 보낼 수 있는게 있나 1ms동안 알아봐라~
 		auto selectResult = select(0, &read_set, &write_set, &exc_set, &timeout);
 
+		// 읽을 게 있거나 보낼 수 있는게 있는지 확인
 		auto isFDSetChanged = RunCheckSelectResult(selectResult);
 		if (isFDSetChanged == false)
 		{
 			return;
 		}
 
-		// Accept
+		// 읽을 게 있다는 의미는 누군가 접속했다는 의미이므로 NewSession한다.
+		// 왜냐하면 m_serverSockfd는 listen하고 있는 포트 하나만 담고있기 때문
 		if (FD_ISSET(m_ServerSockfd, &read_set))
-		{
 			NewSession();
-		}
 		else // clients
-		{
 			RunCheckSelectClients(exc_set, read_set, write_set);
-		}
 	}
 
 	bool TcpNetwork::RunCheckSelectResult(const int result)
@@ -177,6 +188,7 @@ namespace NServerNetLib
 		return NET_ERROR_CODE::NONE;
 	}
 
+	// 세션 풀을 미리 다 만들어두고 재활용할 것이다.
 	void TcpNetwork::CreateSessionPool(const int maxClientCount)
 	{
 		for (int i = 0; i < maxClientCount; ++i)
@@ -209,18 +221,22 @@ namespace NServerNetLib
 		m_ClientSessionPool[index].Clear();
 	}
 
+	// 서버 소켓을 생성하고 초기화한다
 	NET_ERROR_CODE TcpNetwork::InitServerSocket()
 	{
+		// winsock 버전 셋팅
 		WORD wVersionRequested = MAKEWORD(2, 2);
 		WSADATA wsaData;
 		WSAStartup(wVersionRequested, &wsaData);
 
+		// 소켓을 생성해서 소켓 접근자를 얻어온다.
 		m_ServerSockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (m_ServerSockfd < 0)
 		{
 			return NET_ERROR_CODE::SERVER_SOCKET_CREATE_FAIL;
 		}
 
+		// 소켓 옵션 설정
 		auto n = 1;
 		if (setsockopt(m_ServerSockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof(n)) < 0)
 		{
@@ -232,22 +248,27 @@ namespace NServerNetLib
 
 	NET_ERROR_CODE TcpNetwork::BindListen(short port, int backlogCount)
 	{
+		// ip, 포트 셋팅.
+		// ip는 아무거나 상관없으니 INADDR_ANY
 		SOCKADDR_IN server_addr;
 		ZeroMemory(&server_addr, sizeof(server_addr));
 		server_addr.sin_family = AF_INET;
 		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 		server_addr.sin_port = htons(port);
 
+		// bind()
 		if (bind(m_ServerSockfd, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
 		{
 			return NET_ERROR_CODE::SERVER_SOCKET_BIND_FAIL;
 		}
 		
+		// listen()
 		if (listen(m_ServerSockfd, backlogCount) == SOCKET_ERROR)
 		{
 			return NET_ERROR_CODE::SERVER_SOCKET_LISTEN_FAIL;
 		}
-
+		
+		//로그
 		m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | Listen. ServerSockfd(%d)", __FUNCTION__, m_ServerSockfd);
 		return NET_ERROR_CODE::NONE;
 	}

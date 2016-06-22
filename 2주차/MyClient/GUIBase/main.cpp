@@ -1,15 +1,14 @@
-#include "nana/gui/wvl.hpp"
-#include "nana/gui/widgets/label.hpp"
+#include <iostream>
 
-#pragma comment(lib, "nana_v140_Debug_x86.lib")
+#include "MainForm.h"
 
 int main()
 {
-	using namespace nana;
-	form	fm;
+	MainForm mainForm;
 
-	label	lb(fm, rectangle(fm.size()));
-	lb.caption("Hello, World!");
-	fm.show();
-	exec();
+	mainForm.Init();
+
+	mainForm.CreateGUI();
+
+	mainForm.ShowModal();
 }

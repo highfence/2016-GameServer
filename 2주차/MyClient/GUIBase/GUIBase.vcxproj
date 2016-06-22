@@ -150,9 +150,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainForm.cpp" />
     <ClCompile Include="TcpNetwork.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClientSceen.h" />
+    <ClInclude Include="ClientSceenLobby.h" />
+    <ClInclude Include="ClientSceenLogin.h" />
+    <ClInclude Include="IClientSceen.h" />
+    <ClInclude Include="MainForm.h" />
     <ClInclude Include="TcpNetwork.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
