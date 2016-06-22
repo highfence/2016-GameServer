@@ -60,6 +60,7 @@ int main(int argc, char*argv[])
 
 	while (1)
 	{
+		// 소켓 셋 초기화 
 		FD_ZERO(&readSet);
 		FD_ZERO(&writeSet);
 		FD_SET(listenSocket, &readSet);
@@ -72,7 +73,8 @@ int main(int argc, char*argv[])
 				FD_SET(socketInfoArray[i]->socket, &readSet);
 		}
 
-
+		// select()
+		retval = select(0, &readSet, &writeSet, nullptr, nullptr);
 
 	}
 
