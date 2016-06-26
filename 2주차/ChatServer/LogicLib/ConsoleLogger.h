@@ -11,11 +11,12 @@
 using namespace conmanip;
 #pragma warning( pop )
 
-#include "../ServerNetLib/ILog.h"
+#include "../MySelectServer/MySelectServerNetLib/ILogger.h"
+//#include "../ServerNetLib/ILog.h"
 
 namespace NLogicLib
 {
-	class ConsoleLog : public NServerNetLib::ILog
+	class ConsoleLog : public MySelectServerNetLib::ILogger
 	{
 	public:
 		ConsoleLog() 

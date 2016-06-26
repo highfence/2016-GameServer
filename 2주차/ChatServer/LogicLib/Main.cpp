@@ -1,17 +1,20 @@
 #include <thread>
 #include <chrono>
 
-#include "../ServerNetLib/ServerNetErrorCode.h"
-#include "../ServerNetLib/Define.h"
-#include "../ServerNetLib/TcpNetwork.h"
+#include "../MySelectServer/MySelectServerNetLib/ServerNetErrorCode.h"
+//#include "../ServerNetLib/ServerNetErrorCode.h"
+#include "../MySelectServer/MySelectServerNetLib/Define.h"
+//#include "../ServerNetLib/Define.h"
+#include "../MySelectServer/MySelectServerNetLib/TcpNetwork.h"
+//#include "../ServerNetLib/TcpNetwork.h"
 #include "ConsoleLogger.h"
 #include "LobbyManager.h"
 #include "PacketProcess.h"
 #include "UserManager.h"
 #include "Main.h"
 
-using LOG_TYPE = NServerNetLib::LOG_TYPE;
-using NET_ERROR_CODE = NServerNetLib::NET_ERROR_CODE;
+using LOG_TYPE = MySelectServerNetLib::LOG_TYPE;
+using NET_ERROR_CODE = MySelectServerNetLib::NET_ERROR_CODE;
 
 namespace NLogicLib
 {
@@ -30,7 +33,7 @@ namespace NLogicLib
 
 		LoadConfig();
 
-		m_pNetwork = std::make_unique<NServerNetLib::TcpNetwork>();
+		m_pNetwork = std::make_unique<MySelectServerNetLib::TcpNetwork>();
 		auto result = m_pNetwork->Init(m_pServerConfig.get(), m_pLogger.get());
 			
 		if (result != NET_ERROR_CODE::NONE)
@@ -41,13 +44,13 @@ namespace NLogicLib
 
 		
 		m_pUserMgr = std::make_unique<UserManager>();
-		m_pUserMgr->Init(m_pServerConfig->MaxClientCount);
+		m_pUserMgr->Init(m_pServerConfig->maxClientCount);
 
 		m_pLobbyMgr = std::make_unique<LobbyManager>();
-		m_pLobbyMgr->Init({ m_pServerConfig->MaxLobbyCount, 
-							m_pServerConfig->MaxLobbyUserCount,
-							m_pServerConfig->MaxRoomCountByLobby, 
-							m_pServerConfig->MaxRoomUserCount },
+		m_pLobbyMgr->Init({ m_pServerConfig->maxLobbyCount, 
+							m_pServerConfig->maxLobbyUserCount,
+							m_pServerConfig->maxRoomCountByLobby, 
+							m_pServerConfig->maxRoomUserCount },
 						m_pNetwork.get(), m_pLogger.get());
 
 		m_pPacketProc = std::make_unique<PacketProcess>();
@@ -76,7 +79,7 @@ namespace NLogicLib
 			{
 				auto packetInfo = m_pNetwork->GetPacketInfo();
 
-				if (packetInfo.PacketId == 0)
+				if (packetInfo.packetId == 0)
 				{
 					break;
 				}
@@ -90,7 +93,7 @@ namespace NLogicLib
 
 	ERROR_CODE Main::LoadConfig()
 	{
-		m_pServerConfig = std::make_unique<NServerNetLib::ServerConfig>();
+		m_pServerConfig = std::make_unique<MySelectServerNetLib::ServerConfig>();
 		
 		wchar_t sPath[MAX_PATH] = { 0, };
 		::GetCurrentDirectory(MAX_PATH, sPath);
@@ -98,22 +101,22 @@ namespace NLogicLib
 		wchar_t inipath[MAX_PATH] = { 0, };
 		_snwprintf_s(inipath, _countof(inipath), _TRUNCATE, L"%s\\ServerConfig.ini", sPath);
 
-		m_pServerConfig->Port = (unsigned short)GetPrivateProfileInt(L"Config", L"Port", 0, inipath);
-		m_pServerConfig->BackLogCount = GetPrivateProfileInt(L"Config", L"BackLogCount", 0, inipath);
-		m_pServerConfig->MaxClientCount = GetPrivateProfileInt(L"Config", L"MaxClientCount", 0, inipath);
+		m_pServerConfig->port = (unsigned short)GetPrivateProfileInt(L"Config", L"port", 0, inipath);
+		m_pServerConfig->backLogCount = GetPrivateProfileInt(L"Config", L"backLogCount", 0, inipath);
+		m_pServerConfig->maxClientCount = GetPrivateProfileInt(L"Config", L"maxClientCount", 0, inipath);
 
-		m_pServerConfig->MaxClientSockOptRecvBufferSize = (short)GetPrivateProfileInt(L"Config", L"MaxClientSockOptRecvBufferSize", 0, inipath);
-		m_pServerConfig->MaxClientSockOptSendBufferSize = (short)GetPrivateProfileInt(L"Config", L"MaxClientSockOptSendBufferSize", 0, inipath);
-		m_pServerConfig->MaxClientRecvBufferSize = (short)GetPrivateProfileInt(L"Config", L"MaxClientRecvBufferSize", 0, inipath);
-		m_pServerConfig->MaxClientSendBufferSize = (short)GetPrivateProfileInt(L"Config", L"MaxClientSendBufferSize", 0, inipath);
+		m_pServerConfig->maxClientSockOptRecvBufferSize = (short)GetPrivateProfileInt(L"Config", L"maxClientSockOptRecvBufferSize", 0, inipath);
+		m_pServerConfig->maxClientSockOptSendBufferSize = (short)GetPrivateProfileInt(L"Config", L"maxClientSockOptSendBufferSize", 0, inipath);
+		m_pServerConfig->maxClientRecvBufferSize = (short)GetPrivateProfileInt(L"Config", L"maxClientRecvBufferSize", 0, inipath);
+		m_pServerConfig->maxClientSendBufferSize = (short)GetPrivateProfileInt(L"Config", L"maxClientSendBufferSize", 0, inipath);
 
-		m_pServerConfig->ExtraClientCount = GetPrivateProfileInt(L"Config", L"ExtraClientCount", 0, inipath);
-		m_pServerConfig->MaxLobbyCount = GetPrivateProfileInt(L"Config", L"MaxLobbyCount", 0, inipath);
-		m_pServerConfig->MaxLobbyUserCount = GetPrivateProfileInt(L"Config", L"MaxLobbyUserCount", 0, inipath);
-		m_pServerConfig->MaxRoomCountByLobby = GetPrivateProfileInt(L"Config", L"MaxRoomCountByLobby", 0, inipath);
-		m_pServerConfig->MaxRoomUserCount = GetPrivateProfileInt(L"Config", L"MaxRoomUserCount", 0, inipath);
+		m_pServerConfig->extraClientCount = GetPrivateProfileInt(L"Config", L"extraClientCount", 0, inipath);
+		m_pServerConfig->maxLobbyCount = GetPrivateProfileInt(L"Config", L"maxLobbyCount", 0, inipath);
+		m_pServerConfig->maxLobbyUserCount = GetPrivateProfileInt(L"Config", L"maxLobbyUserCount", 0, inipath);
+		m_pServerConfig->maxRoomCountByLobby = GetPrivateProfileInt(L"Config", L"maxRoomCountByLobby", 0, inipath);
+		m_pServerConfig->maxRoomUserCount = GetPrivateProfileInt(L"Config", L"maxRoomUserCount", 0, inipath);
 
-		m_pLogger->Write(NServerNetLib::LOG_TYPE::L_INFO, "%s | Port(%d), Backlog(%d)", __FUNCTION__, m_pServerConfig->Port, m_pServerConfig->BackLogCount);
+		m_pLogger->Write(MySelectServerNetLib::LOG_TYPE::L_INFO, "%s | port(%d), Backlog(%d)", __FUNCTION__, m_pServerConfig->port, m_pServerConfig->backLogCount);
 		return ERROR_CODE::NONE;
 	}
 		

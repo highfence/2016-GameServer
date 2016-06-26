@@ -1,5 +1,6 @@
 #include "../../Common/Packet.h"
-#include "../ServerNetLib/TcpNetwork.h"
+#include "../MySelectServer/MySelectServerNetLib/TcpNetwork.h"
+//#include "../ServerNetLib/TcpNetwork.h"
 #include "../../Common/ErrorCode.h"
 #include "User.h"
 #include "UserManager.h"
@@ -18,10 +19,10 @@ namespace NLogicLib
 		// 로비에 들어간다.
 		// 기존 로비에 있는 사람에게 새 사람이 들어왔다고 알려준다
 
-		auto reqPkt = (NCommon::PktLobbyEnterReq*)packetInfo.pRefData;
+		auto reqPkt = (NCommon::PktLobbyEnterReq*)packetInfo.dataAddress;
 		NCommon::PktLobbyEnterRes resPkt;
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -48,12 +49,12 @@ namespace NLogicLib
 
 		resPkt.MaxUserCount = pLobby->MaxUserCount();
 		resPkt.MaxRoomCount = pLobby->MaxRoomCount();
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_ENTER_RES, sizeof(NCommon::PktLobbyEnterRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_ENTER_RES, sizeof(NCommon::PktLobbyEnterRes), (char*)&resPkt);
 		return ERROR_CODE::NONE;
 
 	CHECK_ERR:
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_ENTER_RES, sizeof(NCommon::PktLobbyEnterRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_ENTER_RES, sizeof(NCommon::PktLobbyEnterRes), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 
@@ -63,7 +64,7 @@ namespace NLogicLib
 		// 현재 로비에 있는지 조사한다.
 		// 룸 리스트를 보내준다.
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -81,7 +82,7 @@ namespace NLogicLib
 			CHECK_ERROR(ERROR_CODE::LOBBY_ROOM_LIST_INVALID_LOBBY_INDEX);
 		}
 
-		auto reqPkt = (NCommon::PktLobbyRoomListReq*)packetInfo.pRefData;
+		auto reqPkt = (NCommon::PktLobbyRoomListReq*)packetInfo.dataAddress;
 
 		pLobby->SendRoomList(pUser->GetSessioIndex(), reqPkt->StartRoomIndex);
 
@@ -89,7 +90,7 @@ namespace NLogicLib
 	CHECK_ERR :
 		NCommon::PktLobbyRoomListRes resPkt;
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_ENTER_ROOM_LIST_RES, sizeof(NCommon::PktBase), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_ENTER_ROOM_LIST_RES, sizeof(NCommon::PktBase), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 
@@ -99,7 +100,7 @@ namespace NLogicLib
 		// 현재 로비에 있는지 조사한다.
 		// 유저 리스트를 보내준다.
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -117,7 +118,7 @@ namespace NLogicLib
 			CHECK_ERROR(ERROR_CODE::LOBBY_USER_LIST_INVALID_LOBBY_INDEX);
 		}
 
-		auto reqPkt = (NCommon::PktLobbyUserListReq*)packetInfo.pRefData;
+		auto reqPkt = (NCommon::PktLobbyUserListReq*)packetInfo.dataAddress;
 
 		pLobby->SendUserList(pUser->GetSessioIndex(), reqPkt->StartUserIndex);
 
@@ -125,7 +126,7 @@ namespace NLogicLib
 	CHECK_ERR:
 		NCommon::PktLobbyUserListRes resPkt;
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_ENTER_USER_LIST_RES, sizeof(NCommon::PktBase), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_ENTER_USER_LIST_RES, sizeof(NCommon::PktBase), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 	
@@ -138,7 +139,7 @@ namespace NLogicLib
 		// 기존 로비에 있는 사람에게 나가는 사람이 있다고 알려준다.
 		NCommon::PktLobbyLeaveRes resPkt;
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -163,12 +164,12 @@ namespace NLogicLib
 
 		pLobby->NotifyLobbyLeaveUserInfo(pUser);
 				
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_LEAVE_RES, sizeof(NCommon::PktLobbyLeaveRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_LEAVE_RES, sizeof(NCommon::PktLobbyLeaveRes), (char*)&resPkt);
 
 		return ERROR_CODE::NONE;
 	CHECK_ERR:
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_LEAVE_RES, sizeof(NCommon::PktLobbyLeaveRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_LEAVE_RES, sizeof(NCommon::PktLobbyLeaveRes), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 }

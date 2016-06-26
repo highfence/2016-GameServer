@@ -1,5 +1,6 @@
 #include "../../Common/Packet.h"
-#include "../ServerNetLib/TcpNetwork.h"
+#include "../MySelectServer/MySelectServerNetLib/TcpNetwork.h"
+//#include "../ServerNetLib/TcpNetwork.h"
 #include "../../Common/ErrorCode.h"
 #include "User.h"
 #include "UserManager.h"
@@ -15,10 +16,10 @@ namespace NLogicLib
 	ERROR_CODE PacketProcess::RoomEnter(PacketInfo packetInfo)
 	{
 	CHECK_START
-		auto reqPkt = (NCommon::PktRoomEnterReq*)packetInfo.pRefData;
+		auto reqPkt = (NCommon::PktRoomEnterReq*)packetInfo.dataAddress;
 		NCommon::PktRoomEnterRes resPkt;
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -68,12 +69,12 @@ namespace NLogicLib
 		// 룸에 새 유저 들어왔다고 알린다
 		pRoom->NotifyEnterUserInfo(pUser->GetIndex(), pUser->GetID().c_str());
 		
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::ROOM_ENTER_RES, sizeof(resPkt), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::ROOM_ENTER_RES, sizeof(resPkt), (char*)&resPkt);
 		return ERROR_CODE::NONE;
 
 	CHECK_ERR:
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::ROOM_ENTER_RES, sizeof(resPkt), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::ROOM_ENTER_RES, sizeof(resPkt), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 
@@ -82,7 +83,7 @@ namespace NLogicLib
 	CHECK_START
 		NCommon::PktRoomLeaveRes resPkt;
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -124,22 +125,22 @@ namespace NLogicLib
 		// 로비에 바뀐 방 정보를 통보
 		pLobby->NotifyChangedRoomInfo(pRoom->GetIndex());
 		
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::ROOM_LEAVE_RES, sizeof(resPkt), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::ROOM_LEAVE_RES, sizeof(resPkt), (char*)&resPkt);
 		return ERROR_CODE::NONE;
 
 	CHECK_ERR:
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::ROOM_LEAVE_RES, sizeof(resPkt), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::ROOM_LEAVE_RES, sizeof(resPkt), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 
 	ERROR_CODE PacketProcess::RoomChat(PacketInfo packetInfo)
 	{
 	CHECK_START
-		auto reqPkt = (NCommon::PktRoomChatReq*)packetInfo.pRefData;
+		auto reqPkt = (NCommon::PktRoomChatReq*)packetInfo.dataAddress;
 		NCommon::PktRoomChatRes resPkt;
 
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -165,12 +166,12 @@ namespace NLogicLib
 
 		pRoom->NotifyChat(pUser->GetSessioIndex(), pUser->GetID().c_str(), reqPkt->Msg);
 				
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::ROOM_CHAT_RES, sizeof(resPkt), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::ROOM_CHAT_RES, sizeof(resPkt), (char*)&resPkt);
 		return ERROR_CODE::NONE;
 
 	CHECK_ERR:
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::ROOM_CHAT_RES, sizeof(resPkt), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::ROOM_CHAT_RES, sizeof(resPkt), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 }

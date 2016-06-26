@@ -1,7 +1,9 @@
 #include <algorithm>
 
-#include "../ServerNetLib/ILog.h"
-#include "../ServerNetLib/TcpNetwork.h"
+#include "../MySelectServer/MySelectServerNetLib/ILogger.h"
+//#include "../ServerNetLib/ILog.h"
+#include "../MySelectServer/MySelectServerNetLib/TcpNetwork.h"
+//#include "../ServerNetLib/TcpNetwork.h"
 #include "../../Common/Packet.h"
 #include "../../Common/ErrorCode.h"
 
@@ -23,7 +25,7 @@ namespace NLogicLib
 		m_MaxUserCount = maxUserCount;
 	}
 
-	void Room::SetNetwork(TcpNet* pNetwork, ILog* pLogger)
+	void Room::SetNetwork(TcpNet* pNetwork, ILogger* pLogger)
 	{
 		m_pRefLogger = pLogger;
 		m_pRefNetwork = pNetwork;

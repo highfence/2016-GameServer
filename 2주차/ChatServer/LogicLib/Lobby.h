@@ -5,14 +5,14 @@
 
 #include "Room.h"
 
-namespace NServerNetLib
+namespace MySelectServerNetLib
 {
-	class ITcpNetwork;
+	class TcpNetwork;
 }
 
-namespace NServerNetLib
+namespace MySelectServerNetLib
 {
-	class ILog;
+	class ILogger;
 }
 
 namespace NCommon
@@ -23,8 +23,8 @@ using ERROR_CODE = NCommon::ERROR_CODE;
 
 namespace NLogicLib
 {
-	using TcpNet = NServerNetLib::ITcpNetwork;
-	using ILog = NServerNetLib::ILog;
+	using TcpNet = MySelectServerNetLib::TcpNetwork;
+	using ILogger = MySelectServerNetLib::ILogger;
 
 	class User;
 	
@@ -42,7 +42,7 @@ namespace NLogicLib
 
 		void Init(const short lobbyIndex, const short maxLobbyUserCount, const short maxRoomCountByLobby, const short maxRoomUserCount);
 		
-		void SetNetwork(TcpNet* pNetwork, ILog* pLogger);
+		void SetNetwork(TcpNet* pNetwork, ILogger* pLogger);
 
 		short GetIndex() { return m_LobbyIndex; }
 
@@ -84,7 +84,7 @@ namespace NLogicLib
 
 
 	protected:
-		ILog* m_pRefLogger;
+		ILogger* m_pRefLogger;
 		TcpNet* m_pRefNetwork;
 
 

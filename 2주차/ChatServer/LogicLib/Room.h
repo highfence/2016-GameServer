@@ -5,16 +5,16 @@
 
 #include "User.h"
 
-namespace NServerNetLib { class ITcpNetwork; }
-namespace NServerNetLib { class ILog; }
+namespace MySelectServerNetLib { class TcpNetwork; }
+namespace MySelectServerNetLib { class ILogger; }
 namespace NCommon { enum class ERROR_CODE :short;}
 
 using ERROR_CODE = NCommon::ERROR_CODE;
 
 namespace NLogicLib
 {	
-	using TcpNet = NServerNetLib::ITcpNetwork;
-	using ILog = NServerNetLib::ILog;
+	using TcpNet = MySelectServerNetLib::TcpNetwork;
+	using ILogger = MySelectServerNetLib::ILogger;
 
 	class Room
 	{
@@ -24,7 +24,7 @@ namespace NLogicLib
 
 		void Init(const short index, short int maxUserCount);
 
-		void SetNetwork(TcpNet* pNetwork, ILog* pLogger);
+		void SetNetwork(TcpNet* pNetwork, ILogger* pLogger);
 
 		void Clear();
 		
@@ -54,7 +54,7 @@ namespace NLogicLib
 		void NotifyChat(const int sessionIndex, const char* pszUserID, const wchar_t* pszMsg);
 
 	private:
-		ILog* m_pRefLogger;
+		ILogger* m_pRefLogger;
 		TcpNet* m_pRefNetwork;
 
 		short m_Index = -1;

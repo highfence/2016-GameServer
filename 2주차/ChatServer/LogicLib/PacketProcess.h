@@ -1,19 +1,20 @@
 #pragma once
 
 #include "../../Common/Packet.h"
-#include "../ServerNetLib/Define.h"
+#include "../MySelectServer/MySelectServerNetLib/Define.h"
+//#include "../ServerNetLib/Define.h"
 #include "../../Common/ErrorCode.h"
 
 using ERROR_CODE = NCommon::ERROR_CODE;
 
-namespace NServerNetLib
+namespace MySelectServerNetLib
 {
-	class ITcpNetwork;
+	class TcpNetwork;
 }
 
-namespace NServerNetLib
+namespace MySelectServerNetLib
 {
-	class ILog;
+	class ILogger;
 }
 
 
@@ -27,23 +28,23 @@ namespace NLogicLib
 
 	class PacketProcess
 	{
-		using PacketInfo = NServerNetLib::RecvPacketInfo;
+		using PacketInfo = MySelectServerNetLib::RecvPacketInfo;
 		typedef ERROR_CODE(PacketProcess::*PacketFunc)(PacketInfo);
 		PacketFunc PacketFuncArray[(int)NCommon::PACKET_ID::MAX];
 
-		using TcpNet = NServerNetLib::ITcpNetwork;
-		using ILog = NServerNetLib::ILog;
+		using TcpNet = MySelectServerNetLib::TcpNetwork;
+		using ILogger = MySelectServerNetLib::ILogger;
 
 	public:
 		PacketProcess();
 		~PacketProcess();
 
-		void Init(TcpNet* pNetwork, UserManager* pUserMgr, LobbyManager* pLobbyMgr, ILog* pLogger);
+		void Init(TcpNet* pNetwork, UserManager* pUserMgr, LobbyManager* pLobbyMgr, ILogger* pLogger);
 
 		void Process(PacketInfo packetInfo);
 	
 	private:
-		ILog* m_pRefLogger;
+		ILogger* m_pRefLogger;
 		TcpNet* m_pRefNetwork;
 		UserManager* m_pRefUserMgr;
 		LobbyManager* m_pRefLobbyMgr;

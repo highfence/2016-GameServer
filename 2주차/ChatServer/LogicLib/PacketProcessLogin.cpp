@@ -1,5 +1,6 @@
 #include "../../Common/Packet.h"
-#include "../ServerNetLib/TcpNetwork.h"
+#include "../MySelectServer/MySelectServerNetLib/TcpNetwork.h"
+//#include "../ServerNetLib/TcpNetwork.h"
 #include "../../Common/ErrorCode.h"
 #include "User.h"
 #include "UserManager.h"
@@ -18,22 +19,22 @@ namespace NLogicLib
 		// ID 중복이라면 에러 처리한다.
 
 		NCommon::PktLogInRes resPkt;
-		auto reqPkt = (NCommon::PktLogInReq*)packetInfo.pRefData;
+		auto reqPkt = (NCommon::PktLogInReq*)packetInfo.dataAddress;
 
-		auto addRet = m_pRefUserMgr->AddUser(packetInfo.SessionIndex, reqPkt->szID);
+		auto addRet = m_pRefUserMgr->AddUser(packetInfo.sessionIndex, reqPkt->szID);
 
 		if (addRet != ERROR_CODE::NONE) {
 			CHECK_ERROR(addRet);
 		}
 
 		resPkt.ErrorCode = (short)addRet;
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOGIN_IN_RES, sizeof(NCommon::PktLogInRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOGIN_IN_RES, sizeof(NCommon::PktLogInRes), (char*)&resPkt);
 
 		return ERROR_CODE::NONE;
 
 	CHECK_ERR:
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOGIN_IN_RES, sizeof(NCommon::PktLogInRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOGIN_IN_RES, sizeof(NCommon::PktLogInRes), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 
@@ -43,7 +44,7 @@ namespace NLogicLib
 		// 인증 받은 유저인가?
 		// 아직 로비에 들어가지 않은 유저인가?
 		
-		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.SessionIndex);
+		auto pUserRet = m_pRefUserMgr->GetUser(packetInfo.sessionIndex);
 		auto errorCode = std::get<0>(pUserRet);
 
 		if (errorCode != ERROR_CODE::NONE) {
@@ -56,14 +57,14 @@ namespace NLogicLib
 			CHECK_ERROR(ERROR_CODE::LOBBY_LIST_INVALID_DOMAIN);
 		}
 		
-		m_pRefLobbyMgr->SendLobbyListInfo(packetInfo.SessionIndex);
+		m_pRefLobbyMgr->SendLobbyListInfo(packetInfo.sessionIndex);
 		
 		return ERROR_CODE::NONE;
 
 	CHECK_ERR:
 		NCommon::PktLobbyListRes resPkt;
 		resPkt.SetError(__result);
-		m_pRefNetwork->SendData(packetInfo.SessionIndex, (short)PACKET_ID::LOBBY_LIST_RES, sizeof(NCommon::PktLogInRes), (char*)&resPkt);
+		m_pRefNetwork->SendData(packetInfo.sessionIndex, (short)PACKET_ID::LOBBY_LIST_RES, sizeof(NCommon::PktLogInRes), (char*)&resPkt);
 		return (ERROR_CODE)__result;
 	}
 }

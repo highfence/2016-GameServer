@@ -2,24 +2,24 @@
 #include <vector>
 #include <unordered_map>
 
-namespace NServerNetLib
+namespace MySelectServerNetLib
 {
 	class TcpNetwork;
 }
 
-namespace NServerNetLib
+namespace MySelectServerNetLib
 {
-	class ILog;
+	class ILogger;
 }
 
 namespace NLogicLib
 {
 	struct LobbyManagerConfig
 	{
-		int MaxLobbyCount;
-		int MaxLobbyUserCount;
-		int MaxRoomCountByLobby;
-		int MaxRoomUserCount;
+		int maxLobbyCount;
+		int maxLobbyUserCount;
+		int maxRoomCountByLobby;
+		int maxRoomUserCount;
 	};
 
 	struct LobbySmallInfo
@@ -32,14 +32,14 @@ namespace NLogicLib
 	
 	class LobbyManager
 	{
-		using TcpNet = NServerNetLib::ITcpNetwork;
-		using ILog = NServerNetLib::ILog;
+		using TcpNet = MySelectServerNetLib::TcpNetwork;
+		using ILogger = MySelectServerNetLib::ILogger;
 
 	public:
 		LobbyManager();
 		virtual ~LobbyManager();
 
-		void Init(const LobbyManagerConfig config, TcpNet* pNetwork, ILog* pLogger);
+		void Init(const LobbyManagerConfig config, TcpNet* pNetwork, ILogger* pLogger);
 
 		Lobby* GetLobby(short lobbyId);
 
@@ -52,7 +52,7 @@ namespace NLogicLib
 
 
 	private:
-		ILog* m_pRefLogger;
+		ILogger* m_pRefLogger;
 		TcpNet* m_pRefNetwork;
 
 		std::vector<Lobby> m_LobbyList;

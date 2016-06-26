@@ -1,5 +1,8 @@
-#include "../ServerNetLib/ILog.h"
-#include "../ServerNetLib/TcpNetwork.h"
+
+#include "../MySelectServer/MySelectServerNetLib/ILogger.h"
+//#include "../ServerNetLib/ILog.h"
+#include "../MySelectServer/MySelectServerNetLib/TcpNetwork.h"
+//#include "../ServerNetLib/TcpNetwork.h"
 #include "User.h"
 #include "UserManager.h"
 #include "Room.h"
@@ -7,21 +10,21 @@
 #include "LobbyManager.h"
 #include "PacketProcess.h"
 
-using LOG_TYPE = NServerNetLib::LOG_TYPE;
+using LOG_TYPE = MySelectServerNetLib::LOG_TYPE;
 
 namespace NLogicLib
 {	
 	PacketProcess::PacketProcess() {}
 	PacketProcess::~PacketProcess() {}
 
-	void PacketProcess::Init(TcpNet* pNetwork, UserManager* pUserMgr, LobbyManager* pLobbyMgr, ILog* pLogger)
+	void PacketProcess::Init(TcpNet* pNetwork, UserManager* pUserMgr, LobbyManager* pLobbyMgr, ILogger* pLogger)
 	{
 		m_pRefLogger = pLogger;
 		m_pRefNetwork = pNetwork;
 		m_pRefUserMgr = pUserMgr;
 		m_pRefLobbyMgr = pLobbyMgr;
 
-		using netLibPacketId = NServerNetLib::PACKET_ID;
+		using netLibPacketId = MySelectServerNetLib::PACKET_ID;
 		using commonPacketId = NCommon::PACKET_ID;
 		for (int i = 0; i < (int)commonPacketId::MAX; ++i)
 		{
@@ -42,7 +45,7 @@ namespace NLogicLib
 	
 	void PacketProcess::Process(PacketInfo packetInfo)
 	{
-		auto packetId = packetInfo.PacketId;
+		auto packetId = packetInfo.packetId;
 		
 		if (PacketFuncArray[packetId] == nullptr)
 		{
@@ -54,7 +57,7 @@ namespace NLogicLib
 
 	ERROR_CODE PacketProcess::NtfSysCloseSesson(PacketInfo packetInfo)
 	{
-		auto pUser = std::get<1>(m_pRefUserMgr->GetUser(packetInfo.SessionIndex));
+		auto pUser = std::get<1>(m_pRefUserMgr->GetUser(packetInfo.sessionIndex));
 
 		if (pUser) 
 		{
@@ -69,7 +72,7 @@ namespace NLogicLib
 					pRoom->NotifyLeaveUserInfo(pUser->GetID().c_str());
 					pLobby->NotifyChangedRoomInfo(pRoom->GetIndex());
 
-					m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | NtfSysCloseSesson. sessionIndex(%d). Room Out", __FUNCTION__, packetInfo.SessionIndex);
+					m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | NtfSysCloseSesson. sessionIndex(%d). Room Out", __FUNCTION__, packetInfo.sessionIndex);
 				}
 
 				pLobby->LeaveUser(pUser->GetIndex());
@@ -78,13 +81,13 @@ namespace NLogicLib
 					pLobby->NotifyLobbyLeaveUserInfo(pUser);
 				}
 
-				m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | NtfSysCloseSesson. sessionIndex(%d). Lobby Out", __FUNCTION__, packetInfo.SessionIndex);
+				m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | NtfSysCloseSesson. sessionIndex(%d). Lobby Out", __FUNCTION__, packetInfo.sessionIndex);
 			}
 			
-			m_pRefUserMgr->RemoveUser(packetInfo.SessionIndex);		}
+			m_pRefUserMgr->RemoveUser(packetInfo.sessionIndex);		}
 		
 
-		m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | NtfSysCloseSesson. sessionIndex(%d)", __FUNCTION__, packetInfo.SessionIndex);
+		m_pRefLogger->Write(LOG_TYPE::L_INFO, "%s | NtfSysCloseSesson. sessionIndex(%d)", __FUNCTION__, packetInfo.sessionIndex);
 		return ERROR_CODE::NONE;
 	}
 	

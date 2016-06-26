@@ -368,21 +368,22 @@ namespace NServerNetLib
 			return NET_ERROR_CODE::RECV_PROCESS_NOT_CONNECTED;
 		}
 
+		// 받은 데이터를 버퍼의 어디서부터 채울건지
 		int recvPos = 0;
 		
-		if (session.RemainingDataSize > 0)
-		{
-			recvPos += session.RemainingDataSize;
-			session.RemainingDataSize = 0;
-		}
+		if (session.RemainingDataSize > 0) // 아직 receiveBuffer에 남아있는 데이터가 있을 경우
+			recvPos += session.RemainingDataSize; // 새로 receive한 데이터는 이미 있는 데이터 뒤에다가 채울 것이다.
 
+		// 받아서 버퍼에 채운다.
 		auto recvSize = recv(fd, &session.pRecvBuffer[recvPos], (MAX_PACKET_SIZE*2), 0);
 
+		// 만약 받은 게 없으면
 		if (recvSize == 0)
 		{
 			return NET_ERROR_CODE::RECV_REMOTE_CLOSE;
 		}
 
+		// 받으려다 에러가 나버리면
 		if (recvSize < 0)
 		{
 			auto error = WSAGetLastError();
@@ -396,6 +397,7 @@ namespace NServerNetLib
 			}
 		}
 
+		// 해당 세션에 남아있는 총 데이터 양에 새로 받은 데이터 양을 더해준다.
 		session.RemainingDataSize += recvSize;
 		return NET_ERROR_CODE::NONE;
 	}
@@ -415,6 +417,7 @@ namespace NServerNetLib
 
 			if (pPktHeader->BodySize > 0)
 			{
+				// <를 >로 바꿔야 할 것 같다.
 				if (pPktHeader->BodySize < (dataSize - readPos))
 				{
 					break;
