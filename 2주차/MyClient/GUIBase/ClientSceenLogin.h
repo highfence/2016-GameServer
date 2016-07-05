@@ -22,13 +22,15 @@ public:
 
 		if (diffTimeSec.count() > 3)
 		{
+			static auto a = false;
 			m_TimeLastedReqLobbyList = curTime;
-
-			RequestLobbyList();
+			if (a == false)
+				RequestLobbyList();
+			a = true;
 		}
 	}
 
-	
+
 	void CreateUI(form* pform)
 	{
 		m_pForm = pform;
@@ -64,7 +66,7 @@ public:
 					auto& pLobby = pktRes->LobbyList[i];
 
 					m_LobbyList->at(0).append({ std::to_string(pLobby.LobbyId),
-													std::to_string(pLobby.LobbyUserCount), 
+													std::to_string(pLobby.LobbyUserCount),
 													std::to_string(50) });
 				}
 			}
@@ -90,7 +92,7 @@ private:
 
 	void RequestEnterLobby()
 	{
-		if (GetCurSceenType() != CLIENT_SCEEN_TYPE::LOGIN) 
+		if (GetCurSceenType() != CLIENT_SCEEN_TYPE::LOGIN)
 		{
 			nana::msgbox m((form&)*m_pForm, "Require LogIn", nana::msgbox::ok);
 			m.icon(m.icon_warning).show();
@@ -98,7 +100,7 @@ private:
 		}
 
 		auto selItem = m_LobbyList->selected();
-		if (selItem.empty()) 
+		if (selItem.empty())
 		{
 			nana::msgbox m((form&)*m_pForm, "Fail Don't Select Lobby", nana::msgbox::ok);
 			m.icon(m.icon_warning).show();
@@ -108,7 +110,7 @@ private:
 		auto index = selItem[0].item;
 		auto lobbyId = std::atoi(m_LobbyList->at(0).at(index).text(0).c_str());
 		NCommon::PktLobbyEnterReq reqPkt;
-		reqPkt.LobbyId = 0;
+		reqPkt.LobbyId = lobbyId;
 		m_pRefNetwork->SendPacket((short)PACKET_ID::LOBBY_ENTER_REQ, sizeof(reqPkt), (char*)&reqPkt);
 	}
 

@@ -372,8 +372,10 @@ namespace NServerNetLib
 		int recvPos = 0;
 		
 		if (session.RemainingDataSize > 0) // 아직 receiveBuffer에 남아있는 데이터가 있을 경우
+		{
 			recvPos += session.RemainingDataSize; // 새로 receive한 데이터는 이미 있는 데이터 뒤에다가 채울 것이다.
-
+			//session.RemainingDataSize = 0;
+		}
 		// 받아서 버퍼에 채운다.
 		auto recvSize = recv(fd, &session.pRecvBuffer[recvPos], (MAX_PACKET_SIZE*2), 0);
 

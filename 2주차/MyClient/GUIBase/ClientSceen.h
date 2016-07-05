@@ -37,6 +37,8 @@ public:
 			this->ConnectOrDisConnect();
 		});
 
+		m_ptxtCurState = std::make_unique<textbox>((form&)*m_pForm, nana::rectangle(450, 15, 120, 20));
+		m_ptxtCurState->caption("State: Disconnected");
 
 		m_lbl3 = std::make_shared<label>((form&)*m_pForm, nana::rectangle(22, 58, 18, 18));
 		m_lbl3->caption("ID:");
@@ -70,6 +72,7 @@ public:
 				if (pktRes->ErrorCode == (short)NCommon::ERROR_CODE::NONE)
 				{
 					m_Loginbtn->caption("LogOut");
+					m_IsLogined = true;
 					SetCurSceenType(CLIENT_SCEEN_TYPE::LOGIN);
 				}
 				else
@@ -81,6 +84,29 @@ public:
 				}
 			}
 			break;
+
+// 		case (short)PACKET_ID::LOGIN_OUT_RES:
+// 		{
+// 			m_Loginbtn->enabled(true);
+// 
+// 			auto pktRes = (NCommon::PktLogInRes*)pData;
+// 
+// 			if (pktRes->ErrorCode == (short)NCommon::ERROR_CODE::NONE)
+// 			{
+// 				m_Loginbtn->caption("Login");
+// 				m_IsLogined = false;
+// 				SetCurSceenType(CLIENT_SCEEN_TYPE::CONNECT);
+// 			}
+// 			else
+// 			{
+// 				nana::msgbox m((form&)*m_pForm, "Fail LOGIN_OUT_REQ", nana::msgbox::ok);
+// 				m.icon(m.icon_warning);
+// 				m << "ErrorCode: " << pktRes->ErrorCode;
+// 				m.show();
+// 			}
+// 		}
+		break;
+
 		default:
 			return false;
 		}
@@ -101,6 +127,7 @@ private:
 			if (m_pRefNetwork->ConnectTo(szIP, (unsigned short)m_Porttxt->to_int()))
 			{
 				m_Connectbtn->caption("DisConnect");
+				m_ptxtCurState->caption("state: Connected");
 				m_Loginbtn->enabled(true);
 			}
 			else
@@ -117,6 +144,7 @@ private:
 			m_pRefNetwork->DisConnect();
 			
 			m_Connectbtn->caption("Connect");
+			m_ptxtCurState->caption("state: Disconnected");
 			m_Loginbtn->enabled(false);
 		}
 
@@ -142,9 +170,13 @@ private:
 		}
 		else
 		{
-			nana::msgbox m((form&)*m_pForm, "Unimplemented", nana::msgbox::ok);
-			m.icon(m.icon_warning);
-			m.show();
+// 			NCommon::PktLogOutReq reqPkt;
+// 			m_pRefNetwork->SendPacket((short)PACKET_ID::LOGIN_OUT_REQ, sizeof(reqPkt), (char*)&reqPkt);
+// 
+// 			m_Loginbtn->enabled(false);
+			//nana::msgbox m((form&)*m_pForm, "Unimplemented", nana::msgbox::ok);
+			//m.icon(m.icon_warning);
+			//m.show();
 		}
 	}
 
@@ -160,8 +192,8 @@ private:
 	std::shared_ptr<textbox> m_Porttxt;
 
 	std::shared_ptr<button> m_Connectbtn;
-
-
+	std::unique_ptr<textbox> m_ptxtCurState;
+	
 	std::shared_ptr<label> m_lbl3;
 	std::shared_ptr<textbox> m_IDtxt;
 

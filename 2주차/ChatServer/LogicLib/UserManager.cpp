@@ -47,14 +47,13 @@ namespace NLogicLib
 		if (FindUser(pszID) != nullptr) {
 			return ERROR_CODE::USER_MGR_ID_DUPLICATION;
 		}
-
+		
 		auto pUser = AllocUserObjPoolIndex();
 		if (pUser == nullptr) {
 			return ERROR_CODE::USER_MGR_MAX_USER_COUNT;
 		}
 
 		pUser->Set(sessionIndex, pszID);
-		
 		m_UserSessionDic.insert({ sessionIndex, pUser });
 		m_UserIDDic.insert({ pszID, pUser });
 
@@ -81,12 +80,14 @@ namespace NLogicLib
 
 	std::tuple<ERROR_CODE, User*> UserManager::GetUser(const int sessionIndex)
 	{
+		// 인덱스에서 유저를 찾음
 		auto pUser = FindUser(sessionIndex);
 
 		if (pUser == nullptr) {
 			return { ERROR_CODE::USER_MGR_INVALID_SESSION_INDEX, nullptr };
 		}
 
+		// 인증여부 확인
 		if (pUser->IsConfirm() == false) {
 			return{ ERROR_CODE::USER_MGR_NOT_CONFIRM_USER, nullptr };
 		}
@@ -94,10 +95,10 @@ namespace NLogicLib
 		return{ ERROR_CODE::NONE, pUser };
 	}
 
+	// 유저 딕셔너리에서 찾아준다.
 	User* UserManager::FindUser(const int sessionIndex)
 	{
 		auto findIter = m_UserSessionDic.find(sessionIndex);
-		
 		if (findIter == m_UserSessionDic.end()) {
 			return nullptr;
 		}

@@ -46,10 +46,6 @@ void MainForm::CreateGUI()
 
 	m_pClientSceenLobby->CreateUI(m_fm.get());
 
-	
-	m_ptxtCurState = std::make_unique<textbox>((form&)*m_fm.get(), nana::rectangle(450, 15, 120, 20));
-	m_ptxtCurState->caption("State: Disconnect");
-	
 	m_RoomUserList = std::make_shared<listbox>((form&)*m_fm.get(), nana::rectangle(22, 522, 120, 166));
 	m_RoomUserList->append_header("UserID", 90);
 
@@ -74,11 +70,11 @@ void MainForm::PacketProcess()
 	
 	auto packet = m_Network->GetPacket();
 
-	if (packet.packetId != 0)
+	if (packet.PacketId != 0)
 	{
-		m_pClientSceen->ProcessPacket(packet.packetId, packet.pData);
-		m_pClientSceenLogin->ProcessPacket(packet.packetId, packet.pData);
-		m_pClientSceenLobby->ProcessPacket(packet.packetId, packet.pData);
+		m_pClientSceen->ProcessPacket(packet.PacketId, packet.pData);
+		m_pClientSceenLogin->ProcessPacket(packet.PacketId, packet.pData);
+		m_pClientSceenLobby->ProcessPacket(packet.PacketId, packet.pData);
 
 		if (packet.pData != nullptr) {
 			delete[] packet.pData;

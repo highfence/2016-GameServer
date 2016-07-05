@@ -39,7 +39,7 @@ namespace MySelectServerNetLib
 		return NET_ERROR_CODE::NONE;
 	}
 
-	MySelectServerNetLib::NET_ERROR_CODE TcpNetwork::SendData(const int sessionIndex, const short packetID, const short bodySize, const char* body)
+	NET_ERROR_CODE TcpNetwork::SendData(const int sessionIndex, const short packetID, const short bodySize, const char* body)
 	{
 		auto& session = _clientSessionPool[sessionIndex];
 

@@ -10,7 +10,8 @@ int main()
 	std::thread logicThread([&]() { 		
 		main.Run(); }
 	);
-	
+
+
 	std::cout << "press any key to exit...";
 	getchar();
 

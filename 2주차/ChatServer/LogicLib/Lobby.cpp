@@ -49,16 +49,20 @@ namespace NLogicLib
 		}
 	}
 
+	// 로비에 유저를 집어넣는다.
 	ERROR_CODE Lobby::EnterUser(User* pUser)
 	{
+		// 로비가 다 찼을 경우
 		if (m_UserIndexDic.size() >= m_MaxUserCount) {
 			return ERROR_CODE::LOBBY_ENTER_MAX_USER_COUNT;
 		}
 
+		// 유저가 유효한지 확인
 		if (FindUser(pUser->GetIndex()) != nullptr) {
 			return ERROR_CODE::LOBBY_ENTER_USER_DUPLICATION;
 		}
 
+		// 유저 집어넣기
 		auto addRet = AddUser(pUser);
 		if (addRet != ERROR_CODE::NONE) {
 			return addRet;
@@ -101,14 +105,17 @@ namespace NLogicLib
 		return (User*)findIter->second;
 	}
 
+	// 유저를 추가한다
 	ERROR_CODE Lobby::AddUser(User* pUser)
 	{
+		// 빈 자리를 찾는다
 		auto findIter = std::find_if(std::begin(m_UserList), std::end(m_UserList), [](auto& lobbyUser) { return lobbyUser.pUser == nullptr; });
 		
+		// 빈 자리가 없다
 		if (findIter == std::end(m_UserList)) {
 			return ERROR_CODE::LOBBY_ENTER_EMPTY_USER_LIST;
 		}
-
+		
 		findIter->pUser = pUser;
 		return ERROR_CODE::NONE;
 	}
@@ -126,7 +133,7 @@ namespace NLogicLib
 
 	short Lobby::GetUserCount()
 	{ 
-		return static_cast<short>(m_UserIndexDic.size()); 
+		return static_cast<short>(m_UserIndexDic.size());
 	}
 
 

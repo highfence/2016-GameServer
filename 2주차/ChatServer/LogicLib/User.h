@@ -48,6 +48,7 @@ namespace NLogicLib
 
 		std::string& GetID() { return m_ID;  }
 
+		// 유저 인증여부를 확인해준다.
 		bool IsConfirm() { return m_IsConfirm;  }
 
 		short GetLobbyIndex() { return m_LobbyIndex; }
@@ -73,6 +74,7 @@ namespace NLogicLib
 			m_CurDomainState = DOMAIN_STATE::ROOM;
 		}
 
+		// 현재 로그인 된 상태인지 체크
 		bool IsCurDomainInLogIn() {
 			return m_CurDomainState == DOMAIN_STATE::LOGIN ? true : false;
 		}

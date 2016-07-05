@@ -10,6 +10,13 @@ namespace MySelectServerNetLib
 
 	TcpNetwork::~TcpNetwork()
 	{
+		for (auto& client : _clientSessionPool)
+		{
+			if (client.receiveBuffer)
+				delete[] client.receiveBuffer;
+			if (client.sendBuffer)
+				delete[] client.sendBuffer;
+		}
 	}
 
 	NET_ERROR_CODE TcpNetwork::Init(const ServerConfig* config, ILogger* logger)
@@ -100,10 +107,10 @@ namespace MySelectServerNetLib
 	}
 
 	// 패킷 큐에서 하나씩 뚝뚝 떼어서 패킷을 나눠준다.
+	// 더이상 패킷이 없으면 .packetId가 0인 패킷을 리턴
 	RecvPacketInfo TcpNetwork::GetPacketInfo()
 	{
 		RecvPacketInfo packetInfo;
-
 		// 패킷큐에 내용물이 있어야 패킷정보를 떼어주든 말든 한다.
 		if (_packetQueue.empty() == false)
 		{
@@ -409,7 +416,8 @@ namespace MySelectServerNetLib
 			// 새로 받은 데이터는 이미 있던 데이터 뒤에다 채울 것이다.
 			receivePos += session.remainingDataSizeInRecvBuf;
 		}
-
+		else
+			session.remainingDataPos = 0;
 		// 받아서 버퍼에 채운다.
 		auto receivedSize = recv(socket, session.receiveBuffer + receivePos, (MAX_PACKET_BODY_SIZE * 2), 0); // 왜 *2를 해주는지 잘 모르겠다.
 
@@ -457,7 +465,10 @@ namespace MySelectServerNetLib
 			{
 				// 교수님 코드에서는 <로 되어있었으나, bodySize가 남아있는 사이즈보다 클 경우에 패킷 안만들고 넘기는 의미이므로, >가 맞는 것 같다.
 				if (packetHeader->bodySize + PACKET_HEADER_SIZE > remainingDataSize)
+				{
+					readPos -= PACKET_HEADER_SIZE;
 					break;
+				}
 				if (packetHeader->bodySize > MAX_PACKET_BODY_SIZE)
 					return NET_ERROR_CODE::RECV_CLIENT_MAX_PACKET;
 			}
@@ -479,7 +490,7 @@ namespace MySelectServerNetLib
 		
 		// 패킷으로 만들지 못하고 남겨진 잘린 패킷의 위치를 저장해둔다.
 		// 다음 루프에서 recv하기 전에 버퍼 앞부분으로 당겨줄 것이다.
-		session.remainingDataPos = session.receiveBuffer + entireDataSize - remainingDataSize;
+		session.remainingDataPos = session.receiveBuffer + readPos;
 
 
 		return NET_ERROR_CODE::NONE;
@@ -498,6 +509,9 @@ namespace MySelectServerNetLib
 		// 하지만, 패킷이 짤렸을 경우 ProcessPacketFromReceiveBuffer()함수에서의 잘렸을 경우 memcpy()하는 코드때문에
 		// 원래 가리키려고 했던 번지보다 더 뒤를 가리키게 되기 때문에 버그가 발생할 것이라고 생각한다.
 		packetInfo.dataAddress = pDataPos;
+
+
+		_packetQueue.push(packetInfo);
 	}
 
 	// 소켓 옵션 설정

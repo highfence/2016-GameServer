@@ -17,9 +17,9 @@ namespace MySelectServerNetLib
 		short maxClientSockOptSendBufferSize;
 
 		int	maxLobbyCount;
-		int maxLobbyUserCount;
-		int maxRoomCountByLobby;
-		int maxRoomUserCount;
+		int maxUserPerLobby;
+		int maxRoomPerLobby;
+		int maxUserPerRoom;
 	};
 
 	enum class SOCKET_CLOSE_CASE : short

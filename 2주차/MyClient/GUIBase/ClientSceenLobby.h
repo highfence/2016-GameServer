@@ -174,7 +174,8 @@ public:
 		NCommon::RoomSmallInfo newRoom;
 		memcpy(&newRoom, pRoomInfo, sizeof(NCommon::RoomSmallInfo));
 		
-		bool IsRemove = newRoom.RoomUserCount == 0 ? true : false;
+		//bool IsRemove = newRoom.RoomUserCount == 0 ? true : false;
+		bool IsRemove = false;
 
 		if (m_IsRoomListWorking)
 		{

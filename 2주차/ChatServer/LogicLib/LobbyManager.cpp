@@ -34,6 +34,7 @@ namespace NLogicLib
 		}
 	}
 
+	// 로비 id를 넣으면 로비를 꺼내준다.
 	Lobby* LobbyManager::GetLobby(short lobbyId)
 	{
 		if (lobbyId < 0 || lobbyId >= (short)m_LobbyList.size()) {

@@ -15,6 +15,7 @@ namespace NCommon
 	struct PktBase
 	{
 		short ErrorCode = (short)ERROR_CODE::NONE;
+		// 패킷 에러 정보 셋팅
 		void SetError(ERROR_CODE error) { ErrorCode = (short)error; }
 	};
 

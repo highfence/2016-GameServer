@@ -8,9 +8,9 @@
 #include <thread>
 #include <mutex>
 
-#include "../../Common/ErrorCode.h"
-#include "../../Common/PacketID.h"
-#include "../../Common/Packet.h"
+#include "../Common/ErrorCode.h"
+#include "../Common/PacketID.h"
+#include "../Common/Packet.h"
 
 
 

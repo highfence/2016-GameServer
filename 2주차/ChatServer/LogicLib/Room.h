@@ -22,7 +22,7 @@ namespace NLogicLib
 		Room();
 		virtual ~Room();
 
-		void Init(const short index, short int maxUserCount);
+		void Init(const short index, const short maxUserCount);
 
 		void SetNetwork(TcpNet* pNetwork, ILogger* pLogger);
 

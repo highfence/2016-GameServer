@@ -151,7 +151,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainForm.cpp" />
-    <ClCompile Include="TcpNetwork.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientSceen.h" />
