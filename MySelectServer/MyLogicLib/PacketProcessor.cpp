@@ -31,6 +31,7 @@ namespace MyLogicLib
 			PacketFuncArray[i] = nullptr;
 		}
 
+		PacketFuncArray[(int)netLibPacketId::NTF_SYS_CLOSE_SESSION] = &PacketProcessor::NtfSysCloseSesson;
 		PacketFuncArray[(int)commonPacketId::LOGIN_IN_REQ] = &PacketProcessor::Login;
 		PacketFuncArray[(int)commonPacketId::LOBBY_LIST_REQ] = &PacketProcessor::LobbyList;
 		PacketFuncArray[(int)commonPacketId::LOBBY_ENTER_REQ] = &PacketProcessor::LobbyEnter;
