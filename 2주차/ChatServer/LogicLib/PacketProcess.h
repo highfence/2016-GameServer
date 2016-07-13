@@ -70,5 +70,7 @@ namespace NLogicLib
 		ERROR_CODE RoomLeave(PacketInfo packetInfo);
 
 		ERROR_CODE RoomChat(PacketInfo packetInfo);
+
+		ERROR_CODE LobbyChat(PacketInfo packetInfo);
 	};
 }

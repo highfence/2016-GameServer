@@ -80,6 +80,22 @@ namespace MyLogicLib
 		return{ ERROR_CODE::NONE, user };
 	}
 
+	std::tuple<ERROR_CODE, User*> UserManager::GetUser(std::string id)
+	{
+		// 인덱스에서 유저를 찾음
+		auto user = FindUser(id.c_str());
+
+		// 해당 세션의 유저는 없는데?
+		if (user == nullptr)
+			return{ ERROR_CODE::USER_MGR_INVALID_SESSION_INDEX, nullptr };
+
+		// 인증 여부 확인
+		if (user->IsCertified() == false)
+			return{ ERROR_CODE::USER_MGR_NOT_CONFIRM_USER, nullptr };
+
+		return{ ERROR_CODE::NONE, user };
+	}
+
 	// 유저 풀에서 가용한 오브젝트를 찾아 새로운 유저에게 할당해 준다.
 	// 가용 오브젝트가 없으면 nullptr을 반환.
 	MyLogicLib::User* UserManager::AllocUserObjFromPool()

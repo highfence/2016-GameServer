@@ -90,7 +90,7 @@ namespace MySelectServerNetLib
 		case 0: // 읽을 것도, 쓸 것도 없다.
 			return;
 		case -1: // 오류
-			// TODO : 로그 남기기
+			_logger->Write(LOG_TYPE::L_ERROR, "select() error");
 			break;
 		default:
 			break;

@@ -51,9 +51,7 @@ private:
 	std::unique_ptr<form> m_fm;
 
 	timer m_timer;
-
-	std::unique_ptr<textbox> m_ptxtCurState;
-	
+		
 	std::shared_ptr<listbox> m_RoomUserList;
 
 	std::shared_ptr<ClientSceen> m_pClientSceen;

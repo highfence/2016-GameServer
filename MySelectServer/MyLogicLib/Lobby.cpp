@@ -32,10 +32,8 @@ namespace MyLogicLib
 
 		for (int i = 0; i < maxRoomPerLobby; ++i)
 		{
-			// TODO : 룸 풀 초기화
 			_roomList.emplace_back(Room());
 			_roomList[i].Init((short)i, maxUserPerRoom);
-			_roomList[i].SetTitle(L"룸룸룸" + std::to_wstring(i));
 		}
 	}
 
@@ -44,7 +42,8 @@ namespace MyLogicLib
 		_network = network;
 		_logger = logger;
 		
-		// TODO : 각 룸마다 네트워크 셋팅해주기
+		for (auto& room : _roomList)
+			room.SetNetwork(network);
 	}
 
 	short Lobby::GetUserCount()
@@ -80,6 +79,24 @@ namespace MyLogicLib
 	}
 
 
+	ERROR_CODE Lobby::LeaveUser(const int userIndex)
+	{
+		RemoveUser(userIndex);
+
+		auto pUser = FindUser(userIndex);
+
+		if (pUser == nullptr) {
+			return ERROR_CODE::LOBBY_LEAVE_USER_NVALID_UNIQUEINDEX;
+		}
+
+		pUser->LeaveLobby();
+
+		_userIndexDic.erase(pUser->GetIndex());
+		_userIdDic.erase(pUser->GetID().c_str());
+
+		return ERROR_CODE::NONE;
+	}
+
 	MyLogicLib::User* Lobby::FindUser(int userIndex)
 	{
 		auto findIter = _userIndexDic.find(userIndex);
@@ -110,6 +127,42 @@ namespace MyLogicLib
 		strncpy_s(packet.UserID, _countof(packet.UserID), user->GetID().c_str(), NCommon::MAX_USER_ID_SIZE);
 
 		SendToAllUser((short)PACKET_ID::LOBBY_ENTER_USER_NTF, sizeof(packet), (char*)&packet, user->GetIndex());
+	}
+
+	void Lobby::NotifyLobbyLeaveUserInfo(User* user)
+	{
+		NCommon::PktLobbyLeaveUserInfoNtf packet;
+		strncpy_s(packet.UserID, _countof(packet.UserID), user->GetID().c_str(), NCommon::MAX_USER_ID_SIZE);
+
+		SendToAllUser((short)PACKET_ID::LOBBY_LEAVE_USER_NTF, sizeof(packet), (char*)&packet, user->GetIndex());
+	}
+
+	// 방 정보를 갱신해서 유저들에게 보낸다.
+	void Lobby::NotifyChangedRoomInfo(const short roomIndex)
+	{
+		NCommon::PktChangedRoomInfoNtf packet;
+
+		auto& room = _roomList[roomIndex];
+
+		packet.RoomInfo.RoomIndex = room.GetIndex();
+		packet.RoomInfo.RoomUserCount = room.GetUserCount();
+
+		if (_roomList[roomIndex].IsUsed())
+			wcsncpy_s(packet.RoomInfo.RoomTitle, NCommon::MAX_ROOM_TITLE_SIZE + 1, room.GetTitle().c_str(), NCommon::MAX_ROOM_TITLE_SIZE);
+		else
+			packet.RoomInfo.RoomTitle[0] = L'0';
+
+		SendToAllUser((short)PACKET_ID::ROOM_CHANGED_INFO_NTF, sizeof(packet), (char*)&packet);
+	}
+
+	void Lobby::NotifyChat(const short sessionIndex, std::string userId, std::wstring message)
+	{
+		NCommon::PktLobbyChatNtf packet;
+		// id, 메시지 복사
+		strncpy_s(packet.UserID, _countof(packet.UserID), userId.c_str(), NCommon::MAX_USER_ID_SIZE);
+		wcsncpy_s(packet.Msg, NCommon::MAX_LOBBY_CHAT_MSG_SIZE + 1, message.c_str(), NCommon::MAX_LOBBY_CHAT_MSG_SIZE);
+
+		SendToAllUser((short)PACKET_ID::LOBBY_CHAT_NTF, sizeof(packet), (char*)&packet, sessionIndex);
 	}
 
 	ERROR_CODE Lobby::SendRoomList(const int sessionId, const short startRoomId)
@@ -155,6 +208,66 @@ namespace MyLogicLib
 		return ERROR_CODE::NONE;
 	}
 
+	ERROR_CODE Lobby::SendUserList(const int sessionId, const short startUserIndex)
+	{
+		if (startUserIndex < 0 || startUserIndex >= (_userList.size() - 1)) {
+			return ERROR_CODE::LOBBY_USER_LIST_INVALID_START_USER_INDEX;
+		}
+
+		int lastCheckedIndex = 0;
+		NCommon::PktLobbyUserListRes pktRes;
+		short userCount = 0;
+
+		for (int i = startUserIndex; i < _userList.size(); ++i)
+		{
+			auto& lobbyUser = _userList[i];
+			lastCheckedIndex = i;
+
+			if (lobbyUser.user == nullptr || lobbyUser.user->IsLobbyState() == false) {
+				continue;
+			}
+
+			pktRes.UserInfo[userCount].LobbyUserIndex = (short)i;
+			strncpy_s(pktRes.UserInfo[userCount].UserID, NCommon::MAX_USER_ID_SIZE + 1, lobbyUser.user->GetID().c_str(), NCommon::MAX_USER_ID_SIZE);
+
+			++userCount;
+
+			if (userCount >= NCommon::MAX_SEND_LOBBY_USER_LIST_COUNT) {
+				break;
+			}
+		}
+
+		pktRes.Count = userCount;
+
+		if (userCount <= 0 || (lastCheckedIndex + 1) == _userList.size()) {
+			pktRes.IsEnd = true;
+		}
+
+		_network->SendData(sessionId, (short)PACKET_ID::LOBBY_ENTER_USER_LIST_RES, sizeof(pktRes), (char*)&pktRes);
+
+		return ERROR_CODE::NONE;
+	}
+
+	// 새로운 방 생성
+	Room* Lobby::CreateRoom()
+	{
+		for (int i = 0; i < _roomList.size(); ++i)
+		{
+			if (_roomList[i].IsUsed() == false)
+				return &_roomList[i];
+		}
+		return nullptr;
+	}
+
+	Room* Lobby::GetRoom(const short roomIndex)
+	{
+		// 에러
+		if (roomIndex < 0 || roomIndex >= _roomList.size())
+			return nullptr;
+		
+		return &_roomList[roomIndex];
+	}
+
 	void Lobby::SendToAllUser(const short packetId, const short dataSize, char* dataPos, const int passUserIndex)
 	{
 		for (auto& user : _userIndexDic)
@@ -166,6 +279,17 @@ namespace MyLogicLib
 
 			_network->SendData(user.second->GetSessionIndex(), packetId, dataSize, dataPos);
 		}
+	}
+
+	void Lobby::RemoveUser(const int userIndex)
+	{
+		auto findIter = std::find_if(std::begin(_userList), std::end(_userList), [userIndex](auto& lobbyUser) { return lobbyUser.user != nullptr && lobbyUser.user->GetIndex() == userIndex; });
+
+		if (findIter != std::end(_userList)) {
+			return;
+		}
+
+		findIter->user = nullptr;
 	}
 
 }

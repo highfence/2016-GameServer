@@ -63,20 +63,23 @@ namespace NLogicLib
 		m_UserList.push_back(pUser);
 		return ERROR_CODE::NONE;
 	}
-
+	
+	// 방에서 유저를 내보낸다.
 	ERROR_CODE Room::LeaveUser(const short userIndex)
 	{
 		if (m_IsUsed == false) {
 			return ERROR_CODE::ROOM_ENTER_NOT_CREATED;
 		}
 
+		// 해당 유저 찾기
 		auto iter = std::find_if(std::begin(m_UserList), std::end(m_UserList), [userIndex](auto pUser) { return pUser->GetIndex() == userIndex; });
 		if (iter == std::end(m_UserList)) {
 			return ERROR_CODE::ROOM_LEAVE_NOT_MEMBER;
 		}
-		
+		// 유저리스트에서 제거
 		m_UserList.erase(iter);
 
+		// 유저가 한명도 남지 않았으면 방 폭파
 		if (m_UserList.empty()) 
 		{
 			Clear();
@@ -112,6 +115,7 @@ namespace NLogicLib
 		}
 
 		NCommon::PktRoomLeaveUserInfoNtf pkt;
+		// 나간놈이 누구인지 정보를 담자.
 		strncpy_s(pkt.UserID, _countof(pkt.UserID), pszUserID, NCommon::MAX_USER_ID_SIZE);
 
 		SendToAllUser((short)PACKET_ID::ROOM_LEAVE_USER_NTF, sizeof(pkt), (char*)&pkt);
@@ -120,9 +124,11 @@ namespace NLogicLib
 	void Room::NotifyChat(const int sessionIndex, const char* pszUserID, const wchar_t* pszMsg)
 	{
 		NCommon::PktRoomChatNtf pkt;
+		// ID, 메시지 복사
 		strncpy_s(pkt.UserID, _countof(pkt.UserID), pszUserID, NCommon::MAX_USER_ID_SIZE);
 		wcsncpy_s(pkt.Msg, NCommon::MAX_ROOM_CHAT_MSG_SIZE + 1, pszMsg, NCommon::MAX_ROOM_CHAT_MSG_SIZE);
 
+		// 모든 유저에게 알림
 		SendToAllUser((short)PACKET_ID::ROOM_CHAT_NTF, sizeof(pkt), (char*)&pkt, sessionIndex);
 	}
 }

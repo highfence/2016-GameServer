@@ -31,7 +31,7 @@ namespace MyLogicLib
 	}
 
 	// 로비 id를 넣으면 로비를 꺼내준다.
-	MyLogicLib::Lobby* LobbyManager::GetLobby(short lobbyId)
+	Lobby* LobbyManager::GetLobby(short lobbyId)
 	{
 		if (lobbyId < 0 || lobbyId >= (short)_lobbyList.size())
 			return nullptr;

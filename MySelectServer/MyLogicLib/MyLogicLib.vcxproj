@@ -136,6 +136,7 @@
     <ClCompile Include="PacketProcessor.cpp" />
     <ClCompile Include="PacketProcessor_Lobby.cpp" />
     <ClCompile Include="PacketProcessor_Login.cpp" />
+    <ClCompile Include="PacketProcessor_Room.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="UserManager.cpp" />
   </ItemGroup>

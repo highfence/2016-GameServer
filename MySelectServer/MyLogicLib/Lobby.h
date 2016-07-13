@@ -28,14 +28,27 @@ namespace MyLogicLib
 		short							GetUserCount();
 
 		ERROR_CODE						EnterUser(User* user);
+		ERROR_CODE						LeaveUser(const int userIndex);
 
 		void							NotifyLobbyEnterUserInfo(User* user);
+
+		void							NotifyLobbyLeaveUserInfo(User* user);
+
+		void							NotifyChangedRoomInfo(const short roomIndex);
+
+		void							NotifyChat(const short userIndex, std::string userId, std::wstring message);
 
 		auto							MaxUserCount() { return (short)_maxUserCount; }
 
 		auto							MaxRoomCount() { return (short)_roomList.size(); }
 
 		ERROR_CODE						SendRoomList(const int sessionId, const short startRoomId);
+
+		ERROR_CODE						SendUserList(const int sessionId, const short startUserIndex);
+
+		Room*							CreateRoom();
+
+		Room*							GetRoom(const short roomIndex);
 
 	private:
 
@@ -44,8 +57,8 @@ namespace MyLogicLib
 		ERROR_CODE						AddUser(User* user);
 
 
-		void							SendToAllUser(const short packetId, const short dataSize, char* dataPos, const int passUserIndex);
-
+		void							SendToAllUser(const short packetId, const short dataSize, char* dataPos, const int passUserIndex = -1);
+		void							RemoveUser(const int userIndex);
 	private:
 		TcpNet*							_network;
 		ILogger*						_logger;

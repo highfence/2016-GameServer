@@ -44,11 +44,22 @@ namespace MyLogicLib
 
 
 	private:
-
+		ERROR_CODE NtfSysCloseSesson(PacketInfo packetInfo);
 		ERROR_CODE Login(PacketInfo packetInfo);
 		ERROR_CODE LobbyList(PacketInfo packetInfo);
 
 		ERROR_CODE LobbyEnter(PacketInfo packetInfo);
 		ERROR_CODE LobbyRoomList(PacketInfo packetInfo);
+		ERROR_CODE LobbyUserList(PacketInfo packetInfo);
+		ERROR_CODE LobbyChat(PacketInfo packetInfo);
+		ERROR_CODE LobbyLeave(PacketInfo packetInfo);
+
+		ERROR_CODE RoomEnter(PacketInfo packetInfo);
+		ERROR_CODE RoomChat(PacketInfo packetInfo);
+		ERROR_CODE RoomUserList(PacketInfo packetInfo);
+		ERROR_CODE RoomLeave(PacketInfo packetInfo);
+
+
+		ERROR_CODE Whisper(PacketInfo packetInfo);
 	};
 }

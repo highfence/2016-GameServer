@@ -153,6 +153,17 @@ namespace NLogicLib
 		SendToAllUser((short)PACKET_ID::LOBBY_LEAVE_USER_NTF, sizeof(pkt), (char*)&pkt, pUser->GetIndex());
 	}
 
+	void Lobby::NotifyChat(const int sessionIndex, const char* pszUserID, const wchar_t* pszMsg)
+	{
+		NCommon::PktLobbyChatNtf pkt;
+		// ID, 메시지 복사
+		strncpy_s(pkt.UserID, _countof(pkt.UserID), pszUserID, NCommon::MAX_USER_ID_SIZE);
+		wcsncpy_s(pkt.Msg, NCommon::MAX_ROOM_CHAT_MSG_SIZE + 1, pszMsg, NCommon::MAX_ROOM_CHAT_MSG_SIZE);
+
+		// 모든 유저에게 알림
+		SendToAllUser((short)PACKET_ID::LOBBY_CHAT_NTF, sizeof(pkt), (char*)&pkt, sessionIndex);
+	}
+
 	ERROR_CODE Lobby::SendRoomList(const int sessionId, const short startRoomId)
 	{
 		if (startRoomId < 0 || startRoomId >= (m_RoomList.size() - 1)) {
@@ -259,6 +270,7 @@ namespace NLogicLib
 		return &m_RoomList[roomIndex];
 	}
 
+	// 방 정보를 갱신해서 유저들에게 보낸다.
 	void Lobby::NotifyChangedRoomInfo(const short roomIndex)
 	{
 		NCommon::PktChangedRoomInfoNtf pktNtf;

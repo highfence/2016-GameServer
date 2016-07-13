@@ -28,7 +28,6 @@ namespace MyLogicLib
 
 	ERROR_CODE MainLogic::Init()
 	{
-		// TODO : 로거 설정
 		_logger = std::make_unique<ConsoleLogger>();
 
 		// ini에서 설정 불러오기

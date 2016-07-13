@@ -26,6 +26,7 @@ namespace MyLogicLib
 		ERROR_CODE								RemoveUser(const int sessionIndex);
 
 		std::tuple<ERROR_CODE, User*>			GetUser(const int sessionIndex);
+		std::tuple<ERROR_CODE, User*>			GetUser(std::string id);
 
 	private:
 		User*									AllocUserObjFromPool();

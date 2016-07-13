@@ -39,6 +39,10 @@ namespace NCommon
 		ROOM_CHAT_RES = 77,
 		ROOM_CHAT_NTF = 78,
 
+		LOBBY_CHAT_REQ = 86,
+		LOBBY_CHAT_RES = 87,
+		LOBBY_CHAT_NTF = 88,
+
 		MAX = 256
 	};
 
