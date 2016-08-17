@@ -56,7 +56,6 @@ void TcpNetwork::DisConnect()
 void TcpNetwork::SendPacket(const short packetID, const short dataSize, char* pData)
 {
 	char data[MAX_PACKET_SIZE] = { 0, };
-
 	// Çì´õ
 	PacketHeader packetHeader{ packetID,dataSize };
 	memcpy(data, (char*)&packetHeader, PACKET_HEADER_SIZE);
